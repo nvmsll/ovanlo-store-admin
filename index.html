@@ -12,9 +12,6 @@
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap');
         body { font-family: 'Kanit', sans-serif; }
         .tab-active { background-color: #334155 !important; color: white !important; }
-        /* สไตล์เพิ่มเติมสำหรับปุ่มเปิดปิด */
-        .status-on { color: #10b981; border-color: rgba(16, 185, 129, 0.3); }
-        .status-off { color: #f43f5e; border-color: rgba(244, 63, 94, 0.3); }
     </style>
 </head>
 <body class="bg-slate-900 min-h-screen p-4 md:p-6 text-slate-200">
@@ -32,7 +29,7 @@
                         <span class="text-[9px] font-black text-slate-500 uppercase">Pre-order Status</span>
                         <span id="system-status-text" class="text-[10px] font-bold">Checking...</span>
                     </div>
-                    <button id="system-toggle-btn" onclick="toggleSystem()" class="px-4 py-2 rounded-xl text-xs font-black transition-all">
+                    <button id="system-toggle-btn" data-status="loading" onclick="toggleSystem()" class="px-4 py-2 rounded-xl text-xs font-black transition-all">
                         Loading...
                     </button>
                 </div>
@@ -60,7 +57,7 @@
                 <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">เฉลี่ยต่อแก้ว</p>
                 <div class="flex items-end gap-2 text-slate-200">
                     <span id="stat-avg" class="text-2xl font-bold text-white">0</span>
-                    <span class="text-xs text-slate-500 mb-1 font-bold text-slate-500">฿</span>
+                    <span class="text-xs text-slate-500 mb-1 font-bold">฿</span>
                 </div>
             </div>
             <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 shadow-lg">
@@ -99,22 +96,31 @@
         let currentFilter = 'all'; 
         let allOrders = {};
 
-        // --- เพิ่มฟังก์ชันควบคุมสถานะระบบ ---
+        // --- ส่วนที่แก้ไข: ฟังก์ชันเปิด/ปิด Pre-order ---
         function toggleSystem() {
             const btn = document.getElementById('system-toggle-btn');
-            const isCurrentlyOpen = btn.innerText === 'ปิดรับออเดอร์';
+            // เช็คสถานะปัจจุบันจาก attribute data-status
+            const currentStatus = btn.getAttribute('data-status');
+            
+            if (currentStatus === "loading") return;
+
+            const isCurrentlyOpen = (currentStatus === 'true');
             const action = isCurrentlyOpen ? "หยุดรับ" : "เปิดรับ";
             
             if(confirm(`คุณต้องการ ${action} Pre-order ใช่หรือไม่?`)) {
-                db.ref('system_status/preorder_open').set(!isCurrentlyOpen);
+                db.ref('system_status/preorder_open').set(!isCurrentlyOpen)
+                .catch(err => alert("เกิดข้อผิดพลาด: " + err.message));
             }
         }
 
-        // ติดตามสถานะการเปิด/ปิดร้านแบบ Real-time
+        // ติดตามสถานะระบบแบบ Real-time
         db.ref('system_status/preorder_open').on('value', (snap) => {
-            const isOpen = snap.val() !== false;
+            const isOpen = snap.val() !== false; 
             const btn = document.getElementById('system-toggle-btn');
             const statusText = document.getElementById('system-status-text');
+
+            // อัปเดต attribute เพื่อให้ฟังก์ชัน toggle รู้สถานะล่าสุด
+            btn.setAttribute('data-status', isOpen);
 
             if(isOpen) {
                 statusText.innerText = "ONLINE";
