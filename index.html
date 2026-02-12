@@ -12,6 +12,8 @@
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;800&display=swap');
         body { font-family: 'Kanit', sans-serif; }
         .tab-active { background-color: #334155 !important; color: white !important; }
+        .stat-card { transition: all 0.3s ease; border: 1px solid rgba(51, 65, 85, 0.5); }
+        .stat-card:hover { transform: translateY(-2px); border-color: rgba(59, 130, 246, 0.5); }
     </style>
 </head>
 <body class="bg-slate-900 min-h-screen p-4 md:p-6 text-slate-200">
@@ -37,44 +39,94 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-            <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 shadow-lg">
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">จำนวนแก้ววันนี้</p>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 mb-4">
+            <div class="stat-card bg-slate-800 p-4 rounded-3xl shadow-lg border-l-4 border-blue-500">
+                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-1">แก้วที่ขายแล้ว</p>
                 <div class="flex items-end gap-2 text-white">
-                    <span id="stat-cups" class="text-3xl font-black text-blue-500">0</span>
-                    <span class="text-xs text-slate-500 mb-1 font-bold">แก้ว</span>
+                    <span id="stat-cups-done" class="text-3xl font-black text-blue-500">0</span>
+                    <span class="text-[10px] text-slate-500 mb-1 font-bold">แก้ว</span>
+                </div>
+            </div>
+
+            <div class="stat-card bg-slate-800 p-4 rounded-3xl shadow-lg border-l-4 border-orange-500">
+                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-1">แก้วที่ค้างในคิว</p>
+                <div class="flex items-end gap-2 text-white">
+                    <span id="stat-cups-pending" class="text-3xl font-black text-orange-500">0</span>
+                    <span class="text-[10px] text-slate-500 mb-1 font-bold">แก้ว</span>
                 </div>
             </div>
             
-            <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 shadow-lg ring-1 ring-blue-500/20">
-                <p class="text-[10px] text-blue-400 font-bold uppercase tracking-wider mb-1">ยอด Pre-Order</p>
+            <div class="stat-card bg-slate-800 p-4 rounded-3xl shadow-lg ring-1 ring-blue-500/20">
+                <p class="text-[9px] text-blue-400 font-bold uppercase tracking-widest mb-1">ยอด Pre-Order</p>
                 <div class="flex items-end gap-1 text-white">
                     <span id="stat-income-pre" class="text-2xl font-black text-blue-400">0</span>
                     <span class="text-[10px] text-slate-500 mb-1 font-bold italic">฿</span>
                 </div>
             </div>
 
-            <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 shadow-lg ring-1 ring-orange-500/20">
-                <p class="text-[10px] text-orange-400 font-bold uppercase tracking-wider mb-1">ยอด Walk-in</p>
+            <div class="stat-card bg-slate-800 p-4 rounded-3xl shadow-lg ring-1 ring-orange-500/20">
+                <p class="text-[9px] text-orange-400 font-bold uppercase tracking-widest mb-1">ยอด Walk-in</p>
                 <div class="flex items-end gap-1 text-white">
                     <span id="stat-income-walk" class="text-2xl font-black text-orange-400">0</span>
                     <span class="text-[10px] text-slate-500 mb-1 font-bold italic">฿</span>
                 </div>
             </div>
 
-            <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 shadow-lg bg-gradient-to-br from-slate-800 to-slate-900 ring-2 ring-green-500/30">
-                <p class="text-[10px] text-green-400 font-bold uppercase tracking-wider mb-1">รายได้รวมทั้งหมด</p>
+            <div class="stat-card bg-slate-800 p-4 rounded-3xl shadow-lg bg-gradient-to-br from-slate-800 to-slate-900 ring-2 ring-green-500/30">
+                <p class="text-[9px] text-green-400 font-bold uppercase tracking-widest mb-1">รายได้รวม</p>
                 <div class="flex items-end gap-1 text-white">
                     <span id="stat-income-total" class="text-3xl font-black text-green-500">0</span>
-                    <span class="text-xs text-slate-500 mb-1 font-bold">฿</span>
+                    <span class="text-[10px] text-slate-500 mb-1 font-bold italic">฿</span>
                 </div>
             </div>
 
-            <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 shadow-lg hidden lg:block">
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">คิวที่ยังค้าง</p>
+            <div class="stat-card bg-slate-800 p-4 rounded-3xl shadow-lg">
+                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-1">คิวที่ยังค้าง</p>
                 <div class="flex items-end gap-2 text-slate-200">
-                    <span id="stat-pending" class="text-2xl font-bold text-orange-400">0</span>
-                    <span class="text-xs text-slate-500 mb-1 font-bold uppercase">คิว</span>
+                    <span id="stat-pending-queues" class="text-3xl font-black text-slate-200">0</span>
+                    <span class="text-[10px] text-slate-500 mb-1 font-bold uppercase">คิว</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <div class="bg-emerald-900/20 border border-emerald-500/20 p-4 rounded-3xl flex justify-between items-center shadow-inner">
+                <div class="flex items-center gap-4">
+                    <div class="text-3xl">🥤</div>
+                    <div>
+                        <p class="text-xs font-black text-emerald-500 uppercase tracking-tighter">เมนูไมโล (Milo)</p>
+                        <p class="text-[10px] text-slate-400">สถิติแยกตามสถานะน้ำ</p>
+                    </div>
+                </div>
+                <div class="flex gap-6">
+                    <div class="text-center">
+                        <p class="text-[9px] font-bold text-slate-500 uppercase">ขายแล้ว</p>
+                        <p id="stat-milo-done" class="text-xl font-black text-emerald-400">0</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-[9px] font-bold text-slate-500 uppercase">ค้างคิว</p>
+                        <p id="stat-milo-pending" class="text-xl font-black text-orange-400">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-blue-900/20 border border-blue-500/20 p-4 rounded-3xl flex justify-between items-center shadow-inner">
+                <div class="flex items-center gap-4">
+                    <div class="text-3xl">🥤</div>
+                    <div>
+                        <p class="text-xs font-black text-blue-500 uppercase tracking-tighter">เมนูโอวัลติน (Ovaltine)</p>
+                        <p class="text-[10px] text-slate-400">สถิติแยกตามสถานะน้ำ</p>
+                    </div>
+                </div>
+                <div class="flex gap-6">
+                    <div class="text-center">
+                        <p class="text-[9px] font-bold text-slate-500 uppercase">ขายแล้ว</p>
+                        <p id="stat-ova-done" class="text-xl font-black text-blue-400">0</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-[9px] font-bold text-slate-500 uppercase">ค้างคิว</p>
+                        <p id="stat-ova-pending" class="text-xl font-black text-orange-400">0</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -86,7 +138,7 @@
             <button onclick="setFilter('history')" id="btn-history" class="filter-btn flex-1 py-2 px-4 rounded-xl text-sm font-bold text-slate-400 hover:bg-green-600/20 hover:text-green-400 transition">✅ ประวัติการขาย</button>
         </div>
 
-        <div id="admin-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+        <div id="admin-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-20"></div>
     </div>
 
     <script>
@@ -151,34 +203,65 @@
         });
 
         function updateDashboard() {
-            let totalCups = 0;
-            let incomePre = 0;   // ยอด Pre-order
-            let incomeWalk = 0;  // ยอด Walk-in
-            let pendingOrders = 0;
+            // Stats Variables
+            let cupsDone = 0;
+            let cupsPending = 0;
+            let incomePre = 0;
+            let incomeWalk = 0;
+            let pendingQueues = 0;
+
+            // Menu-specific Stats
+            let miloDone = 0;
+            let miloPending = 0;
+            let ovaDone = 0;
+            let ovaPending = 0;
 
             Object.values(allOrders).forEach(order => {
                 const type = (order.type || "").toLowerCase();
-                
-                if (order.status === 'เสร็จแล้ว') {
-                    totalCups += (order.items ? order.items.length : 0);
-                    const price = (order.totalPrice || 0);
+                const items = order.items || [];
+                const status = order.status;
+
+                if (status === 'เสร็จแล้ว') {
+                    // คำนวณแก้วที่ขายแล้ว
+                    cupsDone += items.length;
                     
-                    if (type === 'pre-order') {
-                        incomePre += price;
-                    } else {
-                        incomeWalk += price;
-                    }
-                } else if (order.status === 'รอดำเนินการ' || order.status === 'กำลังปรุง') {
-                    pendingOrders++;
+                    // คำนวณรายได้
+                    const price = (order.totalPrice || 0);
+                    if (type === 'pre-order') incomePre += price;
+                    else incomeWalk += price;
+
+                    // นับแยกเมนู (เสร็จแล้ว)
+                    items.forEach(item => {
+                        if (item.drink === 'ไมโล') miloDone++;
+                        else if (item.drink === 'โอวัลติน') ovaDone++;
+                    });
+
+                } else if (status === 'รอดำเนินการ' || status === 'กำลังปรุง') {
+                    // คำนวณแก้วที่ยังค้างคิว
+                    cupsPending += items.length;
+                    pendingQueues++;
+
+                    // นับแยกเมนู (ค้างคิว)
+                    items.forEach(item => {
+                        if (item.drink === 'ไมโล') miloPending++;
+                        else if (item.drink === 'โอวัลติน') ovaPending++;
+                    });
                 }
             });
 
-            // อัปเดตตัวเลขหน้าจอ
-            document.getElementById('stat-cups').innerText = totalCups.toLocaleString();
+            // อัปเดตตัวเลขหน้าจอ (Dashboard)
+            document.getElementById('stat-cups-done').innerText = cupsDone.toLocaleString();
+            document.getElementById('stat-cups-pending').innerText = cupsPending.toLocaleString();
             document.getElementById('stat-income-pre').innerText = incomePre.toLocaleString();
             document.getElementById('stat-income-walk').innerText = incomeWalk.toLocaleString();
             document.getElementById('stat-income-total').innerText = (incomePre + incomeWalk).toLocaleString();
-            document.getElementById('stat-pending').innerText = pendingOrders.toLocaleString();
+            document.getElementById('stat-pending-queues').innerText = pendingQueues.toLocaleString();
+
+            // อัปเดตตัวเลขแยกเมนู
+            document.getElementById('stat-milo-done').innerText = miloDone;
+            document.getElementById('stat-milo-pending').innerText = miloPending;
+            document.getElementById('stat-ova-done').innerText = ovaDone;
+            document.getElementById('stat-ova-pending').innerText = ovaPending;
         }
 
         function renderOrders() {
