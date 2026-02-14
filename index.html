@@ -8,6 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;800&display=swap');
         body { font-family: 'Kanit', sans-serif; }
@@ -26,6 +27,10 @@
             </div>
             
             <div class="flex flex-wrap items-center gap-3">
+                <button onclick="exportToExcel()" class="text-[10px] text-emerald-400 border border-emerald-400/30 px-4 py-3 rounded-2xl hover:bg-emerald-400/10 transition font-black uppercase tracking-wider flex items-center gap-2">
+                    📊 Export ข้อมูลวันนี้
+                </button>
+
                 <div class="flex items-center gap-2 bg-slate-800 p-2 px-4 rounded-2xl border border-slate-700 shadow-inner">
                     <div class="flex flex-col mr-2">
                         <span class="text-[9px] font-black text-slate-500 uppercase">Pre-order Status</span>
@@ -158,6 +163,45 @@
         let currentFilter = 'all'; 
         let allOrders = {};
 
+        // --- ฟังก์ชันส่งออก Excel ---
+        function exportToExcel() {
+            const dataForExcel = [];
+            const keys = Object.keys(allOrders);
+            
+            if (keys.length === 0) return alert("ไม่มีข้อมูลที่จะส่งออก");
+
+            // เรียงลำดับคิวตามเวลาจริง (จากเก่าไปใหม่)
+            keys.forEach(key => {
+                const order = allOrders[key];
+                
+                // คำนวณจำนวนแก้วแต่ละเมนู
+                const miloCount = (order.items || []).filter(i => i.drink === 'ไมโล').length;
+                const ovaCount = (order.items || []).filter(i => i.drink === 'โอวัลติน').length;
+
+                dataForExcel.push({
+                    "ลำดับคิว": (order.prefix || "") + String(order.queueNo).padStart(3, '0'),
+                    "วันที่": order.date || new Date().toLocaleDateString('th-TH'),
+                    "เวลาที่สั่ง": order.time || "-",
+                    "ชื่อลูกค้า": order.customerName || "ไม่ระบุชื่อ",
+                    "ไมโล (แก้ว)": miloCount,
+                    "โอวัลติน (แก้ว)": ovaCount,
+                    "รวมแก้วทั้งหมด": (order.items || []).length,
+                    "ราคารวม": order.totalPrice || 0,
+                    "สถานะ": order.status,
+                    "ประเภท": order.type === 'pre-order' ? 'พรีออเดอร์' : 'หน้าร้าน'
+                });
+            });
+
+            // สร้าง Worksheet
+            const worksheet = XLSX.utils.json_to_sheet(dataForExcel);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "OvanLo_Orders");
+
+            // ดาวน์โหลดไฟล์
+            const dateStr = new Date().toLocaleDateString('th-TH').replace(/\//g, '-');
+            XLSX.writeFile(workbook, `รายงานการขาย_OvanLo_${dateStr}.xlsx`);
+        }
+
         // --- System Toggle ---
         function toggleSystem() {
             const btn = document.getElementById('system-toggle-btn');
@@ -203,18 +247,11 @@
         });
 
         function updateDashboard() {
-            // Stats Variables
-            let cupsDone = 0;
-            let cupsPending = 0;
-            let incomePre = 0;
-            let incomeWalk = 0;
+            let cupsDone = 0; let cupsPending = 0;
+            let incomePre = 0; let incomeWalk = 0;
             let pendingQueues = 0;
-
-            // Menu-specific Stats
-            let miloDone = 0;
-            let miloPending = 0;
-            let ovaDone = 0;
-            let ovaPending = 0;
+            let miloDone = 0; let miloPending = 0;
+            let ovaDone = 0; let ovaPending = 0;
 
             Object.values(allOrders).forEach(order => {
                 const type = (order.type || "").toLowerCase();
@@ -222,26 +259,17 @@
                 const status = order.status;
 
                 if (status === 'เสร็จแล้ว') {
-                    // คำนวณแก้วที่ขายแล้ว
                     cupsDone += items.length;
-                    
-                    // คำนวณรายได้
                     const price = (order.totalPrice || 0);
                     if (type === 'pre-order') incomePre += price;
                     else incomeWalk += price;
-
-                    // นับแยกเมนู (เสร็จแล้ว)
                     items.forEach(item => {
                         if (item.drink === 'ไมโล') miloDone++;
                         else if (item.drink === 'โอวัลติน') ovaDone++;
                     });
-
                 } else if (status === 'รอดำเนินการ' || status === 'กำลังปรุง') {
-                    // คำนวณแก้วที่ยังค้างคิว
                     cupsPending += items.length;
                     pendingQueues++;
-
-                    // นับแยกเมนู (ค้างคิว)
                     items.forEach(item => {
                         if (item.drink === 'ไมโล') miloPending++;
                         else if (item.drink === 'โอวัลติน') ovaPending++;
@@ -249,15 +277,12 @@
                 }
             });
 
-            // อัปเดตตัวเลขหน้าจอ (Dashboard)
             document.getElementById('stat-cups-done').innerText = cupsDone.toLocaleString();
             document.getElementById('stat-cups-pending').innerText = cupsPending.toLocaleString();
             document.getElementById('stat-income-pre').innerText = incomePre.toLocaleString();
             document.getElementById('stat-income-walk').innerText = incomeWalk.toLocaleString();
             document.getElementById('stat-income-total').innerText = (incomePre + incomeWalk).toLocaleString();
             document.getElementById('stat-pending-queues').innerText = pendingQueues.toLocaleString();
-
-            // อัปเดตตัวเลขแยกเมนู
             document.getElementById('stat-milo-done').innerText = miloDone;
             document.getElementById('stat-milo-pending').innerText = miloPending;
             document.getElementById('stat-ova-done').innerText = ovaDone;
